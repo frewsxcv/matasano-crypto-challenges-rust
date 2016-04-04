@@ -1,7 +1,7 @@
 #![feature(iter_arith)]
 
 // https://en.wikipedia.org/wiki/Letter_frequency#Relative_frequencies_of_letters_in_the_English_language
-pub fn byte_freq_score(c: u8) -> f32 {
+fn byte_freq_score(c: u8) -> f32 {
     match c {
         b'a' => 8.167,
         b'b' => 1.492,
@@ -44,6 +44,10 @@ pub trait BytesExt {
 
     /// XOR all bytes of |self| with |other|. Panics if lengths differ.
     fn xor_bytes(&self, other: &[u8], dest: &mut [u8]);
+
+    /// Calculate the likelihood that |self| is an ASCII English
+    /// word/phrase/sentence.
+    fn english_score(&self) -> f32;
 }
 
 impl BytesExt for [u8] {
@@ -69,10 +73,10 @@ impl BytesExt for [u8] {
             dest[i] = xor;
         }
     }
-}
 
-pub fn bytestring_score(bytes: &[u8]) -> f32 {
-    bytes.iter()
-         .map(|b| byte_freq_score(*b))
-         .sum()
+    fn english_score(&self) -> f32 {
+        self.iter()
+            .map(|b| byte_freq_score(*b))
+            .sum()
+    }
 }

@@ -15,7 +15,7 @@ fn main() {
     let mut best = (0f32, 0u8, String::new());
     for i in 0..255 {
         input.xor_byte(i, &mut input_xor);
-        let score = utils::bytestring_score(&input_xor);
+        let score = input_xor.english_score();
         if score > best.0 {
             let s = input_xor.ascii_to_string();
             best = (score, i, s);
