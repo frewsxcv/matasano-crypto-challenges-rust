@@ -1,14 +1,34 @@
+extern crate rand;
+extern crate utils;
+
 use std::collections::BTreeMap;
+use utils::aes_128_ecb;
 
 type Profile = BTreeMap<String, String>;
 
 fn main() {
-    let profile1 = decode("foo=bar&baz=qux&zap=zazzle");
+    //
+    // Write a k=v parsing routine, as if for a structured cookie.
+    //
 
-    let profile2 = profile_for("foo@bar.com");
+    let profile = decode("foo=bar&baz=qux&zap=zazzle");
+    assert_eq!("baz=qux&foo=bar&zap=zazzle", encode(&profile));
 
-    assert_eq!("baz=qux&foo=bar&zap=zazzle", encode(&profile1));
-    assert_eq!("email=foo@bar.com&role=user&uid=10", encode(&profile2));
+    //
+    // Now write a function that encodes a user profile in that format, given an email address.
+    //
+
+    let profile = profile_for("foo@bar.com");
+    assert_eq!("email=foo@bar.com&role=user&uid=10", encode(&profile));
+
+    // Encrypt the encoded user profile under the key; "provide" that to the "attacker".
+    // Decrypt the encoded user profile and parse it.
+
+    let profile = profile_for("foo@bar.com");
+    let encoded = encode(&profile);
+    // TODO: pad encoded
+    let key = rand::random::<aes_128_ecb::Key>();
+    aes_128_ecb::encrypt(encoded.as_bytes(), &key);
 }
 
 fn decode(input: &str) -> Profile {
